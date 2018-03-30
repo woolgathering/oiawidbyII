@@ -1,0 +1,7 @@
+# ignore EDF files and other big data files
+*.edf
+*.edf.st
+*.raw.fif
+
+# ignore the virtual environment files
+eoiaw/*
