@@ -3,5 +3,10 @@
 *.edf.st
 *.raw.fif
 
+# ignore all sound files
+*.wav
+*.aif
+*.aiff
+
 # ignore the virtual environment files
 eoiaw/*

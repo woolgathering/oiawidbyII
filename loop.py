@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 f = "/home/roger/Documents/jacob/pieces/eoiayidbyII/data/n11/n11.edf"
 annotation = "home/roger/Documents/jacob/pieces/eoiayidbyII/data/n11/n11.txt"
-exclude = ["ROC-LOC", "ECG1-ECG2", "DX1-DX2", "SX1-SX2", "SAO2", "HR", "PLETH", "STAT"] # don't use these channels
+exclude = ["ROC-LOC", "ECG1-ECG2", "DX1-DX2", "SX1-SX2", "SAO2", "PLETH", "STAT"] # don't use these channels
 bands = [(7,45), (48,78), (80,123), (125,150), (153,248), (250,348), (350,448)]
 output = open("/home/roger/Documents/jacob/pieces/eoiayidbyII/data/n11/n11_analysis", "w")
 
@@ -35,6 +35,10 @@ for seg in range(num_segs):
   data = np.lib.pad(data, pad_width=(0,pad), mode='constant', constant_values=0) # pad it
   data = mne.filter.filter_data(data, raw.info['sfreq'], l_freq=None, h_freq=50, fir_design='firwin') # filter
 
+  # get the current heartrate
+  hr = raw.get_data([14], 0, 0+seg_length)[0] # samples in this segment
+  hr = sum(hr)/len(hr) # average them
+
   fft = np.fft.fft(data) # fft
   fft = normalize_complex_arr(fft) # normalize
   x_axis = np.fft.fftfreq(len(data), 1/raw.info['sfreq']) # compute the x-axis
@@ -51,7 +55,7 @@ for seg in range(num_segs):
   gamma2 = sum(fft[bands[6][0]:bands[6][1]])
 
   # normalize
-  spectralSum = sum([delta, theta, alpha, sigma, beta, gamma1, gamma2])
+  spectralSum = sum([delta, theta, alpha, sigma, beta, gamma1, gamma2, hr])
   delta = delta/spectralSum
   theta = theta/spectralSum
   alpha = alpha/spectralSum
@@ -60,9 +64,10 @@ for seg in range(num_segs):
   gamma1 = gamma1/spectralSum
   gamma2 = gamma2/spectralSum
 
-  # make it a string as CSV and write it
-  line = ', '.join(map(str, (time, delta, theta, alpha, beta, gamma)))
-  line += "\n"
+  # make it a string as CSV and write it in the format:
+  # time, delta, theta, alpha, sigma, beta, gamma1, gamma2, heartrate
+  line = ', '.join(map(str, (time, delta, theta, alpha, sigma, beta, gamma1, gamma2, hr)))
+  line += "\n" # a newline
   output.write(line)
 
 output.close()

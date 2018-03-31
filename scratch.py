@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 f = "/home/roger/Documents/jacob/pieces/eoiayidbyII/data/n11/n11.edf"
 annotation = "home/roger/Documents/jacob/pieces/eoiayidbyII/data/n11/n11.txt"
-exclude = ["ROC-LOC", "ECG1-ECG2", "DX1-DX2", "SX1-SX2", "SAO2", "HR", "PLETH", "STAT"] # don't use these channels
+exclude = ["ROC-LOC", "ECG1-ECG2", "DX1-DX2", "SX1-SX2", "SAO2", "PLETH", "STAT"] # don't use these channels
 bands = [(5,20), (21,45), (46,80), (81,125), (126,155), (156,200)]
 output = open("/home/roger/Documents/jacob/pieces/eoiayidbyII/data/n11/n11_analysis", "w")
 
@@ -27,7 +27,8 @@ time = (512 + advance) / raw.info['sfreq']
 # get the raw values into their own arary
 data = raw.get_data([0], 0, 0+seg_length)
 pad = (5120-len(data[0]))
-print (pad)
+hr = raw.get_data([14], 0, 0+seg_length)[0]
+hr = sum(hr)/len(hr)
 data = np.lib.pad(data, pad_width=(0,pad), mode='constant', constant_values=0)
 data = mne.filter.filter_data(data, raw.info['sfreq'], l_freq=None, h_freq=50, fir_design='firwin')
 
@@ -52,7 +53,7 @@ alpha = alpha/spectralSum
 beta = beta/spectralSum
 gamma = gamma/spectralSum
 
-line = ', '.join(map(str, (time, delta, theta, alpha, beta, gamma)))
+line = ', '.join(map(str, (time, delta, theta, alpha, beta, gamma, hr)))
 line += "\n"
 output.write(line)
 
