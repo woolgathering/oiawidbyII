@@ -7,7 +7,7 @@ f = "/home/roger/Documents/jacob/pieces/eoiayidbyII/data/n11/n11.edf"
 annotation = "home/roger/Documents/jacob/pieces/eoiayidbyII/data/n11/n11.txt"
 exclude = ["ROC-LOC", "ECG1-ECG2", "DX1-DX2", "SX1-SX2", "SAO2", "PLETH", "STAT"] # don't use these channels
 bands = [(7,45), (48,78), (80,123), (125,150), (153,248), (250,348), (350,448)]
-output = open("/home/roger/Documents/jacob/pieces/eoiayidbyII/data/n11/n11_analysis", "w")
+output = open("/home/roger/Documents/jacob/pieces/eoiayidbyII/data/n11/n11_analysis_TEST", "w")
 
 def normalize_complex_arr(a):
   a_oo = a - a.real.min() - 1j*a.imag.min() # origin offsetted
