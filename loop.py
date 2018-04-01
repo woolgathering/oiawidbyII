@@ -39,7 +39,7 @@ for seg in range(num_segs):
   # data = mne.filter.filter_data(data, raw.info['sfreq'], l_freq=None, h_freq=50, fir_design='firwin') # filter
 
   # get the current heartrate
-  hr = raw.get_data([14], 0, 0+seg_length)[0] # samples in this segment
+  hr = raw.get_data([14], start, end)[0] # samples in this segment
   hr = sum(hr)/len(hr) # average them
 
   fft = np.fft.fft(data) # fft
@@ -58,7 +58,7 @@ for seg in range(num_segs):
   gamma2 = sum(fft[bands[6][0]:bands[6][1]])
 
   # normalize
-  spectralSum = sum([delta, theta, alpha, sigma, beta, gamma1, gamma2, hr])
+  spectralSum = sum([delta, theta, alpha, sigma, beta, gamma1, gamma2])
   delta = delta/spectralSum
   theta = theta/spectralSum
   alpha = alpha/spectralSum
