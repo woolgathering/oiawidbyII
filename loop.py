@@ -15,8 +15,8 @@ def normalize_complex_arr(a):
 
 raw = mne.io.read_raw_edf(f, exclude=exclude, preload=True) # load the data into memory
 raw, diff = mne.set_eeg_reference(raw, ref_channels=["C4-A1"], copy=False) # set the reference
-raw = raw.notch_filter([50], picks=[0,1,2,3,4,5,6,7,8,9,10,11,12]) # notch filter everything at 50Hz
-raw = raw.filter(l_freq=1, h_freq=50, picks=[0,1,2,3,4,5,6,7,8,9,10,11,12]) # bandpass filter everything between 1 and 50 Hz
+raw = raw.notch_filter([50], picks=[0,1,2,3,4,5,6,7,8,9,10,11,12], fir_design="firwin") # notch filter everything at 50Hz
+raw = raw.filter(l_freq=1, h_freq=50, picks=[0,1,2,3,4,5,6,7,8,9,10,11,12], fir_design="firwin") # bandpass filter everything between 1 and 50 Hz
 # raw.plot(block=True, lowpass=40)
 
 overlap = 0.5
