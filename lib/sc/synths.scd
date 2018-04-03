@@ -4,8 +4,8 @@
 
 {|parent|
 
-  SynthDef(\heartbeat, {|outBus = 0, buff, env, brainBus, amp = 0.2, rate = 60|
-    var sig, ampEnv, trig, spd;
+  SynthDef(\heartbeat, {|outBus = 0, buff, brainBus, amp = 0.2, rate = 60|
+    var sig, ampEnv, trig, spd, env;
     // rate = LFNoise1.kr(0.1).range(rate*0.99, rate*1.1).lag2ud(1,2); // lag up a little quicker than below. Favor slighlty faster heartrate
     rate = rate.lag2(2).reciprocal; // smooth it out and convert it to Hz
     spd = 60/rate; // adjust the speed slightly to pitch up or down when the beat slows or speeds
