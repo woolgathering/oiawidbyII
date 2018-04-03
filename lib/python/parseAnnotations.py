@@ -32,5 +32,12 @@ for line_as_string in content:
         current_stage = line[3] # set the current_stage
         time = int(line[4]) # get the time as an integer
 
+# write the last line out
+output_line = ', '.join(map(str, (current_stage, time)))
+output_line += '\n' # add a newline at the end
+print (output_line)
+total_time += time
+output.write(output_line) # write it to the file
+
 output.close()
-print ("Total time: {} hours".format(float(total_time)/3600))
+print ("Total time: {} seconds -- {} hours".format(total_time, float(total_time)/3600))
