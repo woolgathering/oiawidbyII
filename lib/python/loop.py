@@ -28,7 +28,7 @@ channel = 0 # what channel are we looking at?
 for seg in range(num_segs):
   start = int(seg * advance) # get the staring sample
   end = int(start + seg_length) # get the ending sample
-  time = (start + advance) / raw.info['sfreq'] # get the start time of the current frame
+  time = start/raw.info['sfreq'] # get the start time of the current frame
 
   print ("\nStarting segment {}...\n".format(seg)) # tell us where we are
 
