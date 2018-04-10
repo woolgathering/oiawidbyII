@@ -10,3 +10,6 @@
 
 # ignore the virtual environment files
 eoiaw/*
+
+# ignore PDF's
+*.pdf
