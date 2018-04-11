@@ -76,7 +76,7 @@
     sig = HPF.ar(LeakDC.ar(sig), 20, mul: 2);
 
     brainAmp =  RunningRange.kr(normalizedBrainBus[0]+normalizedBrainBus[1]).linlin(0,1,0.70794,1).lag3(IRand(15,30)); // modulate the amplitude
-    sig = Normalizer.ar(sig, 0.2511, 0.2) * brainAmp; // normalize to -12dB and modulate by amp
+    sig = Normalizer.ar(sig, 0.1777, 0.2) * brainAmp; // normalize to -15dB and modulate by amp
     Out.ar(outBus, sig * env); // send it out
   }).send(parent.server);
 
