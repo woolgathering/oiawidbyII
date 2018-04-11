@@ -57,27 +57,27 @@
     // no transpositions for WAKE
     switch (stageName)
       {"SLEEP-S1"} {
-        transpositions = [1, 2, 2, 2, 4, 4];
+        transpositions = [1, 2, 2, 2];
         qFac = 1;
         amp = -9.dbamp;
       }
       {"SLEEP-S2"} {
-        transpositions = [1, 2, 2, 4];
+        transpositions = [1, 2, 2];
         qFac = 0.66;
         amp = -7.dbamp;
       }
       {"SLEEP-S3"} {
-        transpositions = [1, 2, 2];
+        transpositions = [0.5, 1, 2, 2];
         qFac = 0.5;
         amp = -5.dbamp;
       }
       {"SLEEP-S4"} {
-        transpositions = [1, 1, 1.5, 2];
+        transpositions = [0.5, 1, 1, 1.5, 2];
         qFac = 0.333;
         amp = -3.dbamp;
       }
       {"SLEEP-REM"} {
-        transpositions = [1, 2, 2, 4];
+        transpositions = [0.5, 1, 2, 2, 4];
         qFac = 0.2;
         amp = -7.dbamp;
         parent.dream.prevRem = true;
@@ -154,7 +154,6 @@
 
         // loop where we decide if we dream or not. And we wait between them, perhaps returning to dream after we're done
         fork {
-          parent.dream.makeDream(120);
           loop {
             // dream
             var dreamDur;
@@ -181,7 +180,7 @@
           thisSynth.set(\kernelUpdate, 0); // reset it
         };
       };
-    }).play;
+    }).play; // .PLAY ---------------------------------------------------------------------
 
 
   };
