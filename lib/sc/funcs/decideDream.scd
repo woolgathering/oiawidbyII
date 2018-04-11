@@ -39,12 +39,10 @@
       "error in parent.makeDream()... unless this is the first stage: %\n".format(error).error;
     };
 
-  };
-
-  ///////////////////////////////////
-  // if we've previously dreamt
-  ///////////////////////////////////
-  if (parent.dream.happened) {
+  } {
+    ///////////////////////////////////
+    // else if we've previously dreamt
+    ///////////////////////////////////
     // more likley to stay in the same dream
     var prevStage;
     try {
