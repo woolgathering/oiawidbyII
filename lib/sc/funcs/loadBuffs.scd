@@ -40,16 +40,17 @@
   //////////////////////////////////////////////////////////////////////
   // dream buffers
   //////////////////////////////////////////////////////////////////////
+  "DREAMS:\n".post;
   parent.dream.paths = (parent.thisDir ++ "/lib/sound/stageREM/dreams/*.wav").pathMatch;
   dreamBuffs = parent.dream.paths.collect{|path, i|
     var buff;
+    "\tloading %...\n".postf(path.basename);
     buff = Buffer.cueSoundFile(parent.server, path, bufferSize: 131072);
     parent.server.sync;
     buff; // return
   };
   parent.server.sync;
   parent.dream.buffs = dreamBuffs;
-  "DREAM BUFFERS: %\n\n".postf(parent.dream.buffs);
 
   parent.freeables.addAll(buffs); // add all this stuff to freeables
   parent.freeables.addAll(dreamBuffs); // add the dream buffers
