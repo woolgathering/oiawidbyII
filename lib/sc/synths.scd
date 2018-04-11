@@ -125,22 +125,34 @@
       doneAction: 14
     );
 
-    rate = normalizedBrainBus[3].linlin(0,1,0.8,1).lag3(20); // get a rate controlled by sigma
+    rate = normalizedBrainBus[3].lag3(90).linlin(0,1,0.75,0.92); // get a rate controlled by sigma
     brainAmp = normalizedBrainBus[0].linexp(0,1,0.707,1).lag3ud(20,30);
-    delTime = normalizedBrainBus[4].linlin(0,1,0.1,1.2).lag3(15);
-    fbLevel = (normalizedBrainBus[2]+normalizedBrainBus[3]).linlin(0,2,0.8,0.1).lag3(20);
-    mix = RunningRange.kr((normalizedBrainBus[5]*2) + normalizedBrainBus[0]).linlin(0,1,-1,0.3).lag3(20);
+    delTime = normalizedBrainBus[4].linlin(0,1,0.8,1).lag3(15);
+    fbLevel = (normalizedBrainBus[2]+normalizedBrainBus[3]).linlin(0,2,0.8,0.5);
+    mix = RunningRange.kr((normalizedBrainBus[5]*2) + normalizedBrainBus[0]).linlin(0,1,-0.3,0.9).lag3(20);
 
     // sig = PlayBuf.ar(2, buff, BufRateScale.kr(buff) * rate, loop: 1);
-    sig = VDiskIn.ar(2, buff, BufRateScale.kr(buff) * rate, loop: 1); // read from disk
-    fb = LocalIn.ar(2, 0) * fbLevel; // feedback from the delay
-    sig = sig+fb; // sum it
-    del = DelayC.ar(sig, 1.5, delTime); // delay
-    LocalOut.ar(sig+del); // send it all back
-    sig = SplayAz.ar(parent.numSpeakers, sig, width: 3); // spatialize it
+    sig = VDiskIn.ar(2, buff, rate, loop: 1); // read from disk
+    // sig = PitchShift.ar(sig, pitchRatio: LFNoise2.kr(0.2).range(0.7,0.9).lag2ud(20,7), timeDispersion: 0.2);
+    fb = LocalIn.ar(2); // feedback from the delay
+    sig = Mix([sig,fb]) * 0.5; // sum it
+    sig = LeakDC.ar(sig);
+    del = DelayC.ar(sig * fbLevel, 1.5, delTime); // delay
+    LocalOut.ar(LeakDC.ar(del)); // send it all back
+    // Out.ar(0, sig);
+    sig = sig.collect{|chan|
+      SplayAz.ar(parent.numSpeakers, chan, width: 3,
+        orientation: LFNoise1.kr(90.reciprocal).range(0,7));
+    };
+    sig = Mix(sig);
+    // sig = SplayAz.ar(parent.numSpeakers, sig, width: 3,
+    //   orientation: LFNoise1.kr(90.reciprocal).range(0,7)
+    // ); // spatialize it
+    sig = sig * 0.15;
 
-    rev = DelayN.ar(sig, (initDel+Rand(0.0,0.001) ! 16), initDel+0.001); // initial delay
-    leakSig = Mix(rev)*0.001; // a little bit of everything for each channel, regardless of position
+    initDel = 0.01;
+    rev = DelayN.ar(sig, 0.1, ((initDel+Rand(0.0,0.05)) ! parent.numSpeakers)); // initial delay
+    leakSig = Mix(rev)*0.021; // a little bit of everything for each channel, regardless of position
     rev = [
       PartConv.ar(rev[0]+leakSig, parent.sound.irSize, revBuffs[0], 0.707),
       PartConv.ar(rev[1]+leakSig, parent.sound.irSize, revBuffs[1], 0.707),
@@ -152,11 +164,11 @@
       PartConv.ar(rev[7]+leakSig, parent.sound.irSize, revBuffs[1], 0.707)
     ];
 
-    rev = HPF.ar(rev, 200); // highpass
+    rev = LPF.ar(HPF.ar(rev, 200), Rand(4000,10000)); // highpass
     rev = CompanderD.ar(rev, 0.707, 1, 0.666); // compress it just to be safe
-    sig = XFade2.ar(sig, rev*0.17782, mix); // mix wet and dry
-    sig = LeakDC.ar(sig); // make sure we're cool
-    Out.ar(outBus, sig*env*brainAmp); // send it out
+    sig = XFade2.ar(sig, rev, mix); // mix wet and dry
+    // sig = LeakDC.ar(sig); // make sure we're cool
+    Out.ar(outBus, sig*brainAmp*env); // send it out
   }).send(parent.server);
 
 }
