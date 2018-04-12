@@ -1,0 +1,36 @@
+.
+├── heartbeat.wav
+├── ir
+│   └── BatteryBenson.wav
+├── myTreeFile
+├── stage1
+│   ├── chimes.wav
+│   ├── guitarRev.wav
+│   ├── kernelStarts
+│   └── stereoEDIT.wav
+├── stage2
+│   ├── chimes.wav
+│   ├── guitarRev.wav
+│   ├── kernelStarts
+│   └── stereoEDIT.wav
+├── stage3
+│   ├── chimes.wav
+│   ├── guitarRev.wav
+│   ├── kernelStarts
+│   └── stereoEDIT.wav
+├── stage4
+│   ├── chimes.wav
+│   ├── guitarRev.wav
+│   ├── kernelStarts
+│   └── stereoEDIT.wav
+├── stageREM
+│   ├── chimes.wav
+│   ├── dreams
+│   │   └── 11GloryBox.wav
+│   ├── guitarRev.wav
+│   ├── kernelStarts
+│   └── stereoEDIT.wav
+└── wake
+    └── 221164__caquet__crickets-in-the-night.wav
+
+8 directories, 25 files
