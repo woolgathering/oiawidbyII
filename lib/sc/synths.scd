@@ -11,9 +11,9 @@
     spd = rate/60; // adjust the speed slightly to pitch up or down when the beat slows or speeds
     sig = GrainBuf.ar(1, Impulse.kr(spd), dur: BufDur.kr(buff), sndbuf: buff, rate: BufRateScale.kr(buff) * spd, interp: 4, envbufnum: env, maxGrains: 5);
     sig = LPF.ar(sig, 100); // low pass
-    ampEnv = LFNoise2.kr(0.01).range(0,amp).lag3ud(30, 40); // fade in and out
+    ampEnv = LFDNoise3.kr(0.01).range(0,amp).lag3ud(30, 40) * LFDNoise3.kr(180.reciprocal).range(0,1); // fade in and out
     sig = LeakDC.ar(sig*ampEnv);
-    sig = PanAz.ar(parent.numSpeakers, sig, LFNoise1.kr(0.01), width: 4);
+    sig = PanAz.ar(parent.numSpeakers, sig, LFDNoise1.kr(0.01), width: 4);
     Out.ar(outBus, sig); // send it out
   }).send(parent.server);
 
@@ -26,7 +26,7 @@
   }).send(parent.server);
 
   SynthDef(\stageSegment, {|outBus = 0, kernel, kernel2, freq = 100, amp = 1, pos = 0, gate = 1, brainBus, normalizedBrainBus, kernelUpdate = 0, qFac = 1|
-    var sig, crossfade, env, q, qMod, rq, posBus, posMod, osc, brainAmp, oscIdxs, conv1, conv2;
+    var sig, crossfade, env, q, qMod, rq, posBus, posMod, osc, brainAmp, brainMod, oscIdxs, conv1, conv2, fftSig, fftChain, fft;
 
     brainBus = In.kr(brainBus, 7);
     normalizedBrainBus = In.kr(normalizedBrainBus, 7);
@@ -44,15 +44,15 @@
     conv2 = parent.numSpeakers.collect{
       Convolution2.ar(PinkNoise.ar(1), kernel2, trigger: kernelUpdate, framesize: parent.sound.kernelSize);
     };
-    sig = XFade2.ar(conv1, conv2, LFNoise1.kr(45.reciprocal), level: 0.707); // fade between the two different signals since Convolution2L glitches
+    sig = XFade2.ar(conv1, conv2, LFDNoise1.kr(45.reciprocal), level: 0.707); // fade between the two different signals since Convolution2L glitches
 
     // calculate frequency
-    freq = freq * RunningRange.kr(brainBus[3]+brainBus[5]).linlin(0,1,0.95,1.05); // let it warble
-    freq = freq.lag3(10); // smooth it out
+    freq = freq * RunningRange.kr((brainBus[3]+brainBus[5])*2, resetHi: Dust.kr(0.001), resetLow: Dust.kr(0.001)).linlin(0,2,0.91,1.09); // let it warble
+    freq = freq.lag3(15); // smooth it out
 
     // width of the filter
     qMod = (brainBus[0] + brainBus[1]) * brainBus[5]; // a value
-    rq = RunningRange.kr(qMod).linlin(0,1,5,20).lag3(5); // bandwidth between 2 and 100 Hz
+    rq = RunningRange.kr(qMod, resetHi: Dust.kr(0.001), resetLow: Dust.kr(0.001)).linlin(0,1,5,20).lag3(5); // bandwidth between 2 and 100 Hz
     rq = (rq * qFac).max(2); // constrain the Q according to the stage
     q = rq/freq; // get the real q
 
@@ -64,20 +64,25 @@
     pos = PanAz.kr(parent.numSpeakers, DC.kr(1), pos, width: 3).lag3(30); // get the gains for each channel
 
     // oscillators. Clips????
-    // osc = SinOsc.ar([freq, freq*2.02], mul: [amp*0.000001, amp*0.000005]) * RunningRange.kr(brainBus.choose).linexp(0,1,0.01,1).lag3(IRand(10,20)); // some sine tones
-    // osc = Mix(osc) * 0.000000000001; // have to make them really really quiet; otherwise they clip??
-    // osc = PanAz.ar(parent.numSpeakers, osc, [pos + Rand(-0.5,0.5), (pos + Rand(-0.5,0.5) - 1).abs], width: 2.5); // need to check this
+    osc = SinOsc.ar([freq * 0.49, freq, freq*2.02], phase: [Rand(0.2pi), Rand(0.2pi), Rand(0,2pi)],  mul: [amp*0.008, amp*0.01, amp*0.005]); // some sine tones
+    osc = Mix(osc) * 0.0002; // have to make them really really quiet; otherwise they clip??
+    osc = Mix([PanAz.ar(parent.numSpeakers, osc, pos[0], width: 2.5), PanAz.ar(parent.numSpeakers, osc, pos[1], width: 2.5)]); // need to check this
     // osc = osc.collect{|sine| DelayN.ar(sine, 0.1, Rand(0,0.1))}; // random delays on each channel
 
     sig = Resonz.ar([sig, sig], [freq, freq*2.01], q, mul: [1, 1*0.50118723]); // filter the signal
     sig = Mix(sig); // mix it down from two 8-channel arrays to a single 8 channel array
     sig = Mix([sig*pos[0], sig*pos[1]]); // multiply by the gains in the spatializer
     // sig = Mix([sig, osc]); // mix them down
-    sig = HPF.ar(LeakDC.ar(sig), 20, mul: 2);
 
-    brainAmp =  RunningRange.kr(normalizedBrainBus[0]+normalizedBrainBus[1]).linlin(0,1,0.70794,1).lag3(IRand(15,30)); // modulate the amplitude
-    sig = Normalizer.ar(sig, 0.1777, 0.2) * brainAmp; // normalize to -15dB and modulate by amp
-    Out.ar(outBus, sig * env); // send it out
+    sig = XFade2.ar(sig, osc,
+      RunningRange.kr(brainBus[5]*brainBus[1], Dust.kr(0.001), Dust.kr(0.001).linlin(0,1,-0.1,-1)).lag3(Rand(50,70));
+    );
+
+    brainMod = TChoose.kr(1,brainBus) + TChoose.kr(1,brainBus);
+    brainAmp =  RunningRange.kr(brainMod, resetHi: Dust.kr(0.001), resetLow: Dust.kr(0.001)).linlin(0,1,0.630,1).lag3(IRand(15,30)); // modulate the amplitude
+    sig = HPF.ar(LeakDC.ar(sig), 20, mul: brainAmp); // filter and multiply
+    sig = Normalizer.ar(sig, 0.1777, 0.2); // normalize to -15dB
+    Out.ar(outBus, sig * env * 0.12589); // reduce by -18dB since there are four of these and send it out
   }).send(parent.server);
 
   // just play back a file (for WAKE)
@@ -142,7 +147,7 @@
     // Out.ar(0, sig);
     sig = sig.collect{|chan|
       SplayAz.ar(parent.numSpeakers, chan, width: 3,
-        orientation: LFNoise1.kr(90.reciprocal).range(0,7));
+        orientation: LFDNoise1.kr(90.reciprocal).range(0,7));
     };
     sig = Mix(sig);
     // sig = SplayAz.ar(parent.numSpeakers, sig, width: 3,
