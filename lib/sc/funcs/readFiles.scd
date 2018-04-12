@@ -25,12 +25,20 @@
   };
 
   parent.readRoutine = Routine.run({
-    var thisAnalysis, thisAnnotation, idx;
+    var thisAnalysis, thisAnnotation, idx, startLine;
     // we need to skip the first 30 analysis frames to ensure everything lines up with the annotations (since they start 30s AFTER the start of the EEG recording)
-    30.do{
-      thisAnalysis = analysis.getLine(1024); // read it
+    idx = 5; // the line number of the annotation file that we're on (0 is start of piece)
+    startLine = 0; // start at 0
+    if (idx > 0) {
+      idx.do{|i|
+        i = i+1; // correct for offset
+        startLine = startLine + annotations[i-1][1].asInteger; // only add if were
+      };
     };
-    idx = 1; // the line number of the annotation file that we're on (0 is start of piece)
+    startLine = startLine + 30; // always at least 30
+    startLine.do{
+      thisAnalysis = analysis.getLine(1024); // offset so we read from the correct place
+    };
 
     // start going through the analysis. Will return nil when we hit the end of the file
     while (
