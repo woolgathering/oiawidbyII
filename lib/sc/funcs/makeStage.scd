@@ -33,7 +33,7 @@
   if (stageName == "SLEEP-S0") {
     var env, buff, startFrames;
     "WOKE UP --------------------------".postln;
-    env = parent.makeEnv(annotationIdx); // make an envelope
+    env = parent.makeEnv(annotationIdx, true); // make an envelope
     buff = sound.wake.buffers.choose; // pick a buffer to read from
     // better to use a decorrelated sources for the WAKE stages???? Would need to listen to them very carefully
     parent.dream.happened = false; // now we can select a new dream
@@ -65,22 +65,22 @@
       }
       {"SLEEP-S2"} {
         transpositions = [1, 2, 2];
-        qFac = 0.66;
+        qFac = 0.9;
         amp = -7.dbamp;
       }
       {"SLEEP-S3"} {
         transpositions = [0.5, 1, 2, 2];
-        qFac = 0.5;
+        qFac = 0.8;
         amp = -5.dbamp;
       }
       {"SLEEP-S4"} {
         transpositions = [0.5, 1, 1, 1.5, 2];
-        qFac = 0.333;
+        qFac = 0.7;
         amp = -3.dbamp;
       }
       {"SLEEP-REM"} {
         transpositions = [0.5, 1, 2, 2, 4];
-        qFac = 0.2;
+        qFac = 0.6;
         amp = -7.dbamp;
         parent.dream.prevRem = true;
       };

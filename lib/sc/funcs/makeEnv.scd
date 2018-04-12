@@ -2,7 +2,7 @@
 // calculate the envelope for a section
 /////////////////////////////////////////////
 
-{|parent, idx|
+{|parent, idx, isWake = false|
 
   var att, dec, prevAnnotation, nextAnnotation, env;
 
@@ -29,6 +29,7 @@
     dec = parent.currentStage.dur * 0.3; // make it a little long
   };
   dec = dec.min(75); // maximum of 60 seconds
+  if (isWake) {dec = dec*1.666}; // make the decay from the WAKE stage longer
 
   // env = Env.asr(att, 1, dec); // get an envelope
   env = Env([ 0, 1, 0 ], [ att, dec ], 'sine', 1);
