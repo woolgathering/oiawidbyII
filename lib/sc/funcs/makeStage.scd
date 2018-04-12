@@ -42,6 +42,8 @@
       rrand(0, buff.numFrames);
     };
 
+    parent.currentTasks = List.new(0); // an empty list so it's not nil
+
     // play sound
     Synth(\playFile_decorrelate,
       [outBus: 0, buff: buff, amp: -12.dbamp, gate: 1, env: env, startFrames: startFrames],
@@ -112,8 +114,9 @@
     // a Task that periodically changes the kernels
     // this also gives 25% of the same kernels as the last stage for the first 1/3 of the duration of the stage, gradually falling to 0 by 1/3.
     // this also selects whether or not we'll dream.
-    parent.currentTask = Task({
-      var lastStage, prob, dur, probDur, firstPass;
+    parent.currentTasks = List.new(0); // an empty list for tasks
+    Task({
+      var lastStage, prob, dur, probDur, firstPass, tmp;
 
       try {
         lastStage = annotations[annotationIdx-1][0]; // get the last stage. Throws an error if it doesn't exist
@@ -126,7 +129,7 @@
         ////////////////////////////////////////////////////////////////////////////////
         // independent loop for calculating probability of previous stage kernel being selected
         ////////////////////////////////////////////////////////////////////////////////
-        fork {
+        tmp = fork {
           loop {
             probDur.wait; // go by the increment in time of 1% of 1/3 of this duration
             // if we still have a change of selecting a kernel from the previous
@@ -135,25 +138,34 @@
             };
           };
         };
+        parent.currentTasks.add(tmp); // add this fork to the list of tasks
 
         ////////////////////////////////////////////////////////////////////////////////
         // change the kernals periodically of a random synth
         ////////////////////////////////////////////////////////////////////////////////
-        fork {
+        tmp = fork {
           loop {
-            var thisSynth, kernels;
+            var thisSynth, kernels, choice;
             (rrand(1,20)*5).wait; // wait a bit in increments of 5s
             thisSynth = synths.choose; // pick a new synth to change the kernel of
-            kernels = [sound.at(lastStage).kernels, sound.at(stageSymbol).kernels].wchoose(prob.normalizeSum); // choose a set of kernels according to prob
-            thisSynth.set([\kernel, \kernal2].choose, kernels.choose); // pick a new kernel for this synth
+            if (lastStage == \wake) {
+              kernels = sound.at(stageSymbol).kernels; // kast stage was WAKE with no kernels
+            } {
+              kernels = [sound.at(lastStage).kernels, sound.at(stageSymbol).kernels].wchoose(prob.normalizeSum); // choose a set of kernels according to prob
+            };
+            choice = kernels.choose;
+            "\tChanging kernal of % to %\n".postf(thisSynth.nodeID, choice);
+            thisSynth.set([\kernel, \kernal2].choose, choice); // pick a new kernel for this synth
             thisSynth.set(\kernelUpdate, 1); // tell it to update
             0.1.wait;
             thisSynth.set(\kernelUpdate, 0); // reset it
           };
         };
+        parent.currentTasks.add(tmp); // add this fork to the list of tasks
 
+        ///////////////////////////////////////////////////
         // loop where we decide if we dream or not. And we wait between them, perhaps returning to dream after we're done
-        fork {
+        tmp = fork {
           loop {
             // dream
             var dreamDur;
@@ -163,13 +175,14 @@
             (dreamDur*rrand(0.9,1.2)).wait; // wait before we check again
           };
         };
+        parent.currentTasks.add(tmp); // add this fork to the list of tasks
 
       } {|error|
         // if it throws an error, we're at the beginning of the piece (i.e. first stage)
         // same thing with NO PROB
         error.warn;
         "NOT AN ERROR! Piece has begun... If you didn't just start the piece, it's a real error.".postln;
-        loop {
+        tmp = loop {
           // change the kernals periodically of a random synth
           var thisSynth;
           (rrand(1,20)*5).wait; // wait a bit in increments of 5s
@@ -179,12 +192,11 @@
           0.1.wait;
           thisSynth.set(\kernelUpdate, 0); // reset it
         };
+        parent.currentTasks.add(tmp); // add this fork to the list of tasks
       };
     }).play; // .PLAY ---------------------------------------------------------------------
 
-
   };
-
 
   sound.lastGroup = group; // remember this group
 }

@@ -60,17 +60,18 @@
             parent.currentStage = (stage: annotations[idx][0], dur: annotations[idx][1].asInteger); // remember it in a larger context
             parent.sound.lastGroup.set(\gate, 0); // start the decay on the previous synths
             // "NEW STAGE: % ----------------\n\n".postf(parent.currentStage.stage); // debugging
-            if (parent.prevTask.notNil) {
-              parent.prevTask = parent.currentTask; // remember the last Task
-              fork {(parent.currentStage.dur*0.15).wait; parent.prevTask.stop}; // stop the last task 15% of the way through
-            } {
-              parent.prevTask = parent.currentTask;
-            };
+            parent.prevTasks = parent.currentTasks;  // remember and reassign
+            fork {(parent.currentStage.dur*0.1).wait; parent.prevTasks.do(_.stop)}; // stop the last task 5% of the way through
+            // if (parent.prevTask.notNil) {
+            //   parent.prevTask = parent.currentTask; // remember the last Task
+            // } {
+            //   parent.prevTask = parent.currentTask; // else set it if it's nil
+            // };
             ////////////////////////////////////
             // WHERE MAGIC HAPPENS /////////////
             ////////////////////////////////////
             ////////////////////////////////////
-            parent.makeStage(parent.currentStage.stage, idx); // make a new stage: group, synth, task, etc.
+            parent.makeStage(parent.currentStage.stage, idx); // make a new stage: group, synth, task, etc. Also where a new currentTask is created
             ////////////////////////////////////
             ////////////////////////////////////
           } {|error|
