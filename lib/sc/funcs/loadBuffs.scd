@@ -45,7 +45,7 @@
   dreamBuffs = parent.dream.paths.collect{|path, i|
     var buff;
     "\tloading %...\n".postf(path.basename);
-    buff = Buffer.cueSoundFile(parent.server, path, bufferSize: 131072);
+    buff = Buffer.cueSoundFile(parent.server, path, bufferSize: 262144);
     parent.server.sync;
     buff; // return
   };
