@@ -4,10 +4,18 @@
 
 (
 Server.supernova;
-s.options.threads = nil; // default to 1 per
+s.options.threads = 2; // 2 threads works better than 1 and more? Odd...
 s.options.memSize = 131072;
+s.options.numBuffers = 2048;
+s.options.sampleRate = 48000;
+s.options.useSystemClock = true;
 s.options.numOutputBusChannels = 8;
 s.options.numInputBusChannels = 0;
+
+s.waitForBoot({
+  defer {s.makeGui; s.meter; s.plotTree};
+});
+
 )
 
 (
