@@ -28,7 +28,7 @@
   parent.readRoutine = Routine.run({
     var thisAnalysis, thisAnnotation, idx, startLine;
     // we need to skip the first 30 analysis frames to ensure everything lines up with the annotations (since they start 30s AFTER the start of the EEG recording)
-    idx = 5; // the line number of the annotation file that we're on (0 is start of piece)
+    idx = parent.annotStart; // the line number of the annotation file that we're on (0 is start of piece)
     startLine = 0; // start at 0
     if (idx > 0) {
       idx.do{|i|
