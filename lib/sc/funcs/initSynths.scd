@@ -13,7 +13,7 @@
   );
 
   parent.sound.heartbeatSynth = Synth(\heartbeat,
-    [outBus: 0, buff: parent.sound.buffs.hr, rate: parent.control.heartBus.asMap, amp: -3.dbamp, env: parent.sound.buffs.hrEnv],
+    [outBus: 0, buff: parent.sound.buffs.hr, rate: parent.control.heartBus.asMap, amp: -1.dbamp, env: parent.sound.buffs.hrEnv],
     target: control.controlGroup, addAction: \addToTail
   );
 
