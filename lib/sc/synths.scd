@@ -25,8 +25,8 @@
     Out.kr(normalizedBrainBus, normalized);
   }).send(parent.server);
 
-  SynthDef(\stageSegment, {|outBus = 0, kernel, kernel2, freq = 100, amp = 1, pos = 0, gate = 1, brainBus, normalizedBrainBus, kernelUpdate = 0, qFac = 1|
-    var sig, crossfade, env, q, qMod, rq, posBus, posMod, osc, brainAmp, brainMod, oscIdxs, conv1, conv2, fftSig, fftChain, fft;
+  SynthDef(\stageSegment, {|outBus = 0, kernel, kernel2, freq = 100, amp = 1, pos = 0, gate = 1, brainBus, normalizedBrainBus, kernelUpdate = 0, qFac = 1, dreamDur = 10, dreamTrig = 0|
+    var sig, crossfade, env, q, qMod, rq, freqMod, posBus, posMod, osc, brainAmp, brainMod, oscIdxs, conv1, conv2, dreamEnv;
 
     brainBus = In.kr(brainBus, 7);
     normalizedBrainBus = In.kr(normalizedBrainBus, 7);
@@ -47,12 +47,13 @@
     sig = XFade2.ar(conv1, conv2, LFDNoise1.kr(45.reciprocal), level: 0.707); // fade between the two different signals since Convolution2L glitches
 
     // calculate frequency
-    freq = freq * RunningRange.kr((brainBus[3]+brainBus[5])*2, resetHi: Dust.kr(0.001), resetLow: Dust.kr(0.001)).linlin(0,2,0.91,1.09); // let it warble
+    freqMod = TChoose.kr(1, brainBus) + TChoose.kr(1, brainBus);
+    freq = freq * RunningRange.kr(freqMod*2, resetHi: Dust.kr(0.001), resetLow: Dust.kr(0.001)).linlin(0,2,0.91,1.09); // let it warble
     freq = freq.lag3(15); // smooth it out
 
     // width of the filter
     qMod = (brainBus[0] + brainBus[1]) * brainBus[5]; // a value
-    rq = RunningRange.kr(qMod, resetHi: Dust.kr(0.001), resetLow: Dust.kr(0.001)).linlin(0,1,5,20).lag3(5); // bandwidth between 2 and 100 Hz
+    rq = RunningRange.kr(qMod, resetHi: Dust.kr(0.001), resetLow: Dust.kr(0.001)).linlin(0,1,5,20).lag3(IRand(5,10)); // bandwidth between 2 and 100 Hz
     rq = (rq * qFac).max(2); // constrain the Q according to the stage
     q = rq/freq; // get the real q
 
@@ -61,7 +62,7 @@
     pos = posMod.linlin(RunningMin.kr(posMod), RunningMax.kr(posMod), pos*0.5, pos*1.5); // make a range
     pos = NaNFilter.kr(pos, Rand(-1,1));
     pos = CircleRamp.kr([pos, pos-1], lagTime: 1, circmin: -1, circmax: 1); // make two positions opposite one another
-    pos = PanAz.kr(parent.numSpeakers, DC.kr(1), pos, width: 3).lag3(30); // get the gains for each channel
+    pos = PanAz.kr(parent.numSpeakers, DC.kr(1), pos, width: 2.5).lag3(30); // get the gains for each channel
 
     // oscillators. Clips????
     osc = SinOsc.ar([freq * 0.49, freq, freq*2.02], phase: [Rand(0.2pi), Rand(0.2pi), Rand(0,2pi)],  mul: [amp*0.008, amp*0.01, amp*0.005]); // some sine tones
@@ -82,7 +83,7 @@
     brainAmp =  RunningRange.kr(brainMod, resetHi: Dust.kr(0.001), resetLow: Dust.kr(0.001)).linlin(0,1,0.630,1).lag3(IRand(15,30)); // modulate the amplitude
     sig = HPF.ar(LeakDC.ar(sig), 20, mul: brainAmp); // filter and multiply
     sig = Normalizer.ar(sig, 0.1777, 0.2); // normalize to -15dB
-    Out.ar(outBus, sig * env * 0.12589); // reduce by -18dB since there are four of these and send it out
+    Out.ar(outBus, sig * env * 0.06309); // reduce by -24dB since there are four of these and send it out
   }).send(parent.server);
 
   // just play back a file (for WAKE)
