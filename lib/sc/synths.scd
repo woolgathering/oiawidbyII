@@ -145,10 +145,8 @@
     del = DelayC.ar(sig * fbLevel, 1.5, delTime); // delay
     LocalOut.ar(LeakDC.ar(del)); // send it all back
     // Out.ar(0, sig);
-    sig = sig.collect{|chan|
-      SplayAz.ar(parent.numSpeakers, chan, width: 3,
+    sig = SplayAz.ar(parent.numSpeakers, sig, width: 2.5,
         orientation: LFDNoise1.kr(90.reciprocal).range(0,7));
-    };
     sig = Mix(sig);
     // sig = SplayAz.ar(parent.numSpeakers, sig, width: 3,
     //   orientation: LFNoise1.kr(90.reciprocal).range(0,7)
