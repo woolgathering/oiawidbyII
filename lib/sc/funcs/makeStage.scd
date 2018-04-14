@@ -24,6 +24,7 @@
   // fundamental = parent.control.fundamentalPattern.next; // using a pattern, get a fundamental
   fundamental = 200; // fixed for now
   annotations = parent.annotations;
+  parent.currentTasks = List.new(0); // an empty list so it's not nil
 
   "% ------------------------------------------ % seconds long\n".postf(stageName, annotations[annotationIdx][1]); // print the stage name
 
@@ -42,7 +43,6 @@
       rrand(0, buff.numFrames);
     };
 
-    parent.currentTasks = List.new(0); // an empty list so it's not nil
 
     // play sound
     Synth(\playFile_decorrelate,
@@ -62,26 +62,31 @@
         transpositions = [1, 2, 2, 2];
         qFac = 1;
         amp = -9.dbamp;
+        fundamental = 200; // 1/1
       }
       {"SLEEP-S2"} {
         transpositions = [1, 2, 2];
         qFac = 0.9;
         amp = -7.dbamp;
+        fundamental = 177.7777; // 9/8 down
       }
       {"SLEEP-S3"} {
         transpositions = [0.5, 1, 2, 2];
         qFac = 0.8;
         amp = -5.dbamp;
+        fundamental = 175; // 8/7 down
       }
       {"SLEEP-S4"} {
         transpositions = [0.5, 1, 1, 1.5, 2];
         qFac = 0.7;
         amp = -3.dbamp;
+        fundamental = 133.3333; // 3/2 down
       }
       {"SLEEP-REM"} {
         transpositions = [0.5, 1, 2, 2, 4];
         qFac = 0.6;
         amp = -7.dbamp;
+        fundamental = [200, 177.777, 175, 133.333].choose; // pick one
         parent.dream.prevRem = true;
       };
 
@@ -114,7 +119,6 @@
     // a Task that periodically changes the kernels
     // this also gives 25% of the same kernels as the last stage for the first 1/3 of the duration of the stage, gradually falling to 0 by 1/3.
     // this also selects whether or not we'll dream.
-    parent.currentTasks = List.new(0); // an empty list for tasks
     Task({
       var lastStage, prob, dur, probDur, firstPass, tmp;
 
@@ -165,6 +169,7 @@
 
         ///////////////////////////////////////////////////
         // loop where we decide if we dream or not. And we wait between them, perhaps returning to dream after we're done
+        ///////////////////////////////////////////////////
         tmp = fork {
           loop {
             // dream
