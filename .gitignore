@@ -13,3 +13,7 @@ eoiaw/*
 
 # ignore PDF's
 *.pdf
+
+# ignore REPAER files
+*.RPP
+*.RPP-bak
