@@ -9,13 +9,13 @@
   sound = parent.sound;
   kernels = List.new(0); // an empty list
   paths = (parent.thisDir ++ "/lib/sound/%/*.wav".format(stage)).pathMatch; // collect the paths for our wake sounds
-  kernelStarts = CSVFileReader(parent.thisDir ++ "/lib/sound/%/kernelStarts".format(stage)); // get it into an array
+  kernelStarts = FileReader(parent.thisDir ++ "/lib/sound/%/kernelStarts".format(stage), true, true); // get it into an array
 
   kernelStarts.do{|line, i|
     var filename, starts;
     filename = line[0]; // get the filename
     starts = line[1..].asInteger; // get the starting samples as integers
-    "Creating kernels for %...\n".postf(filename);
+    "\tCreating kernels for %...\n".postf(filename);
 
     // check to see which path matches the filename
     paths.do{|path, j|
