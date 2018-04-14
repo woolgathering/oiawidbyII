@@ -12,6 +12,7 @@
   parent.annotations = annotations; // set it in the parent
   analysis = File.open(parent.analysisFile, "r"); // get ready to read the file
   parent.currentStage = (stage: "None", dur: 0);
+  parent.currentTasks = List.new(0); // give it something here so it's not nil
 
   // functions to turn the information into a usable form in an array
   annotationLineToArray = {|line|
@@ -61,7 +62,7 @@
             parent.sound.lastGroup.set(\gate, 0); // start the decay on the previous synths
             // "NEW STAGE: % ----------------\n\n".postf(parent.currentStage.stage); // debugging
             parent.prevTasks = parent.currentTasks;  // remember and reassign
-            fork {(parent.currentStage.dur*0.1).wait; parent.prevTasks.do(_.stop)}; // stop the last task 5% of the way through
+            fork {(parent.currentStage.dur*0.1).wait; parent.prevTasks.do(_.stop)}; // stop the last task 5% of the way through and make an empty list here
             // if (parent.prevTask.notNil) {
             //   parent.prevTask = parent.currentTask; // remember the last Task
             // } {
