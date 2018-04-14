@@ -11,7 +11,7 @@
     spd = rate/60; // adjust the speed slightly to pitch up or down when the beat slows or speeds
     sig = GrainBuf.ar(1, Impulse.kr(spd), dur: BufDur.kr(buff), sndbuf: buff, rate: BufRateScale.kr(buff) * spd, interp: 4, envbufnum: env, maxGrains: 5);
     sig = LPF.ar(sig, 100); // low pass
-    ampEnv = LFDNoise3.kr(0.01).range(0,amp).lag3ud(30, 40) * LFDNoise3.kr(180.reciprocal).range(0,1); // fade in and out
+    ampEnv = LFDNoise3.kr(300.reciprocal).range(0.5*amp,amp).lag3ud(30, 40) * LFDNoise3.kr(240.reciprocal).range(0,1); // fade in and out
     sig = LeakDC.ar(sig*ampEnv);
     sig = PanAz.ar(parent.numSpeakers, sig, LFDNoise1.kr(0.01), width: 4);
     Out.ar(outBus, sig); // send it out
@@ -114,6 +114,7 @@
     env = \env.kr(env.asArray);
     env = EnvGen.kr(env, gate, levelScale: amp, doneAction: 14);
     sig = sig*env;
+    sig = HPF.ar(LeakDC.ar(sig), 50);
     Out.ar(outBus, sig*env);
   }).send(parent.server);
 
