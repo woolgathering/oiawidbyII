@@ -2,10 +2,19 @@
 //// every once in a while i dont believe you II
 ////////////////////////////
 
+/*
+  Before starting, turn off irqbalance daemon and ensure that cpufreq is set to performance:
+
+  systemctl stop irqbalance
+  sudo cpufreq-set -r -g performance
+  sudo service cpufreqd restart # or just this here
+
+*/
+
 (
-Server.supernova;
-s.options.threads = 2; // 2 threads works better than 1 and more? Odd...
-s.options.memSize = 131072;
+// Server.supernova;
+// s.options.threads = 2; // 2 threads works better than 1 and more? Odd...
+s.options.memSize = 2.pow(19); // just over 1GB memory
 s.options.numBuffers = 2048;
 s.options.sampleRate = 48000;
 s.options.useSystemClock = true;
@@ -27,6 +36,7 @@ parent.server = Server.default; // default server
 parent.freeables = List.new(0); // an emtpy list for the freeables
 parent.hrEnv = Env([0,1,1,0], [1, 50, 1].normalizeSum, \sine); // an almost rectangular envelope
 parent.numSpeakers = 8;
+parent.annotStart = 3;
 
 parent.control = ();
 
@@ -80,7 +90,8 @@ Routine.run({
 
     // load the kernels
     ["stage1", "stage2", "stage3", "stage4", "stageREM"].do{|stage|
-      parent.loadKernels(stage);
+      "Kernals: %\n".postf(stage); // tell us what's happening
+      parent.loadKernels(stage); // create the kernals
     };
 
     File.include(parent.thisDir ++ "/lib/sc/funcs/loadWake.scd", parent); // load the wake sounds
@@ -91,11 +102,12 @@ Routine.run({
     parent.readAnalysis; // start
 
     parent.server.sync;
+    // parent.dream.makeDream(600); // testing dreams
+
     // parent.keysValuesDo{|key, item| "%::  %\n\n".postf(key, item)};
     // sound.keysValuesDo{|key, item|  "%::  %\n\n".postf(key, item)};
     a = sound;
     p = parent;
-    b = parent.sound.buffs.hr;
   });
 
 });
@@ -103,11 +115,20 @@ Routine.run({
 "~~~~ Starting every once in a while i dont believe you II~~~~~\n\n".post;
 
 )
+262144/48000
+-4.dbamp
+262144/2/48000
 
+2 ** 19
+2.pow(20)
+
+-24.dbamp
 a.stage1.kernels[6].plot
 a.stage1.kernels.size
 a.parent
-p
+a.thisDir
+p.currentTasks
+p.currentTasks.do(_.stop)
 a.parent = p
 a.parent.control
 a
@@ -116,5 +137,3 @@ s.makeGui
 s.meter
 s.plotTree
 s.quit
-
-p.currentTask
