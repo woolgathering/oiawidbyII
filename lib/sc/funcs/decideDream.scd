@@ -1,5 +1,6 @@
 ////////////////
 // dream
+// multiple dreams are ok!
 ////////////////
 
 {|parent, sleepStage, annotationIdx|
@@ -50,7 +51,7 @@
 
       if (prob.coin) {
         // if we do in fact happen to dream, do it!
-        parent.dream.makeDream(thisDur);
+        thisDreamDur = parent.dream.makeDream(thisDur);
       };
 
     } {|error|
