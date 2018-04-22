@@ -26,7 +26,7 @@
   annotations = parent.annotations;
   parent.currentTasks = List.new(0); // an empty list so it's not nil
 
-  "% ------------------------------------------ % seconds long\n".postf(stageName, annotations[annotationIdx][1]); // print the stage name
+  "% ------------------------------------------ % minutes long\n".postf(stageName, (annotations[annotationIdx][1].asFloat/60).round(0.01)); // print the stage name
 
   ////////////////////////////////////////////////////////
   // if the stage is WAKE
