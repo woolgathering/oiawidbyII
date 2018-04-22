@@ -90,8 +90,8 @@ Routine.run({
 
     // load the kernels
     ["stage1", "stage2", "stage3", "stage4", "stageREM"].do{|stage|
-      "Kernals: %\n".postf(stage); // tell us what's happening
-      parent.loadKernels(stage); // create the kernals
+      "Loading % kernals\n".postf(stage); // tell us what's happening
+      parent.loadKernels(stage); // do it
     };
 
     File.include(parent.thisDir ++ "/lib/sc/funcs/loadWake.scd", parent); // load the wake sounds
