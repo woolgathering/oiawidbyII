@@ -17,3 +17,6 @@ eoiaw/*
 # ignore REPAER files
 *.RPP
 *.RPP-bak
+
+# ignore the documentation directory
+documentation/*

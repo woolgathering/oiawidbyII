@@ -97,7 +97,7 @@
     env = EnvGen.kr(env, gate, levelScale: amp, doneAction: 2);
     // sig = sig*env;
     Out.ar(outBus, sig*env);
-  }).send(parent.server);
+  }).add;
 
   SynthDef(\playFile_decorrelate, {|outBus = 0, buff, amp = 1, gate = 1, startFrames = #[0,0,0,0,0,0,0,0]|
     var sig, env;

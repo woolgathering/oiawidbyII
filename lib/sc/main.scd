@@ -111,29 +111,8 @@ Routine.run({
   });
 
 });
+~parent = parent;
 
 "~~~~ Starting every once in a while i dont believe you II~~~~~\n\n".post;
 
 )
-262144/48000
--4.dbamp
-262144/2/48000
-
-2 ** 19
-2.pow(20)
-
--24.dbamp
-a.stage1.kernels[6].plot
-a.stage1.kernels.size
-a.parent
-a.thisDir
-p.currentTasks
-p.currentTasks.do(_.stop)
-a.parent = p
-a.parent.control
-a
-a.wake.buffers[0].numFrames
-s.makeGui
-s.meter
-s.plotTree
-s.quit
