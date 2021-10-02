@@ -1,5 +1,7 @@
-fname = "/home/roger/Documents/jacob/pieces/eoiayidbyII/data/n11/n11.txt"
-output = open("/home/roger/Documents/jacob/pieces/eoiayidbyII/data/n11/n11_annotations", "w")
+import os
+
+fname = os.path.expanduser("~/Documents/misc/oiawidbyII/data/n5/n5.txt")
+output = open(os.path.expanduser("~/Documents/misc/oiawidbyII/data/n5/n5_annotations"), "w")
 
 with open(fname) as f:
     content = f.readlines()
@@ -41,3 +43,4 @@ output.write(output_line) # write it to the file
 
 output.close()
 print ("Total time: {} seconds -- {} hours".format(total_time, float(total_time)/3600))
+
